@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RinoMONITOR — Pediatric Respiratory Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+
+  <!-- ══════════════ ONBOARDING ══════════════ -->
+  <div id="page-onboarding" class="page active">
+    <div class="ob-wrap">
+      <div class="ob-logo-wrap">
+        <div class="ob-logo-ring">
+          <svg class="ob-logo-svg" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="46" stroke="rgba(255,255,255,0.3)" stroke-width="2.5"/>
+            <line x1="50" y1="8" x2="50" y2="92" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M50 38 C33 38 25 52 25 63 C25 77 36 85 50 85 C64 85 75 77 75 63 C75 52 67 38 50 38Z" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" fill="none"/>
+            <circle cx="50" cy="36" r="8" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" fill="none"/>
+          </svg>
+        </div>
+        <div class="ob-eye-ring"></div>
+      </div>
+      <h1 class="ob-title">Rino<span>MONITOR</span></h1>
+      <p class="ob-tagline">AI-powered oral posture detection<br>with blockchain privacy on Cardano</p>
+
+      <div class="ob-features">
+        <div class="ob-feat">
+          <div class="ob-feat-icon fi-teal">👁</div>
+          <div>
+            <div class="ob-feat-title">Real-time AI monitoring</div>
+            <div class="ob-feat-sub">Facial detection via camera · Claude / OpenAI Vision API</div>
+          </div>
+        </div>
+        <div class="ob-feat">
+          <div class="ob-feat-icon fi-blue">⬡</div>
+          <div>
+            <div class="ob-feat-title">Cardano · Immutable anchoring</div>
+            <div class="ob-feat-sub">Every session hashed on-chain · ADA micropayments</div>
+          </div>
+        </div>
+        <div class="ob-feat">
+          <div class="ob-feat-icon fi-purple">🔐</div>
+          <div>
+            <div class="ob-feat-title">Midnight ZKP · Zero-knowledge proofs</div>
+            <div class="ob-feat-sub">Raw data never leaves your device</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="showPage('monitor')">Get started</button>
+      <button class="btn-ghost" onclick="showPage('monitor')">I already have an account</button>
+      <p class="ob-footer">RinoMONITOR · Cardano Catalyst F15<br>Dr. Rangel · Chermaz · Hermida · Couto</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ MAIN APP SHELL ══════════════ -->
+  <div id="app-shell" class="app-shell hidden">
+
+    <!-- Top header -->
+    <header class="app-header">
+      <div class="header-brand" onclick="showPage('monitor')">
+        <div class="header-logo">
+          <svg viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="46" stroke="rgba(255,255,255,0.3)" stroke-width="2.5"/>
+            <line x1="50" y1="8" x2="50" y2="92" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M50 38 C33 38 25 52 25 63 C25 77 36 85 50 85 C64 85 75 77 75 63 C75 52 67 38 50 38Z" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" fill="none"/>
+            <circle cx="50" cy="36" r="8" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" fill="none"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="bt">RinoMONITOR</span>
+          <span class="bs">Pediatric Respiratory Monitor</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="chain-pill" id="chainPill">
+          <div class="chain-dot" id="chainDot"></div>
+          <span id="chainLbl">Testnet</span>
+        </div>
+        <div class="header-avatar" onclick="showPage('settings')">👨‍👧</div>
+      </div>
+    </header>
+
+    <!-- Pages -->
+    <main class="main-content">
+
+      <!-- ── MONITOR ── -->
+      <div id="page-monitor" class="page-inner active">
+        <div class="page-title-row">
+          <div>
+            <h2>Live monitoring</h2>
+            <p class="page-sub">Real-time oral posture detection</p>
+          </div>
+          <div class="ai-badge" id="aiBadge" onclick="showPage('settings')">
+            <span>🤖</span> AI: <span id="aiProviderLabel">Not set</span>
+          </div>
+        </div>
+
+        <div class="monitor-grid">
+          <!-- Camera panel -->
+          <div class="cam-panel">
+            <div class="cam-card">
+              <div class="cam-card-top">
+                <span class="cam-title">Camera feed</span>
+                <div class="cam-status-row">
+                  <div class="status-dot" id="camDot" style="background:#aaa"></div>
+                  <span id="camStatusTxt">Monitoring stopped</span>
+                </div>
+              </div>
+              <div class="cam-viewport" id="camViewport">
+                <video id="videoEl" autoplay muted playsinline></video>
+                <canvas id="overlayCanvas"></canvas>
+                <div class="cam-overlay-ui" id="camOverlayUi">
+                  <div class="cam-corner tl"></div><div class="cam-corner tr"></div>
+                  <div class="cam-corner bl"></div><div class="cam-corner br"></div>
+                  <div class="cam-center-idle" id="camIdle">
+                    <div class="cam-icon-big">📷</div>
+                    <div class="cam-idle-msg">MONITORING NOT ACTIVE</div>
+                    <div class="cam-idle-sub">Press START to begin monitoring</div>
+                  </div>
+                  <div class="live-badge hidden" id="liveBadge">
+                    <div class="live-dot-anim"></div> LIVE
+                  </div>
+                  <div class="detect-label hidden" id="detLabel"></div>
+                  <div class="zkp-badge">🔐 ZKP · off-chain</div>
+                </div>
+              </div>
+              <div class="cam-footer">
+                <div class="det-zone"><div class="dz-sq" style="background:#E24B4A"></div> Mouth area</div>
+                <div class="det-zone"><div class="dz-sq" style="background:#EF9F27"></div> Posture zone</div>
+                <div class="det-zone"><div class="dz-sq" style="background:#4BAE9E"></div> Nasal ✓</div>
+              </div>
+            </div>
+
+            <!-- AI Analysis output -->
+            <div class="ai-output-card" id="aiOutputCard">
+              <div class="ai-output-top">
+                <span class="ai-output-icon">🤖</span>
+                <span class="ai-output-title">AI analysis</span>
+                <span class="ai-output-model" id="aiModelName">—</span>
+              </div>
+              <div class="ai-output-text" id="aiOutputText">Start monitoring to enable AI facial analysis.</div>
+            </div>
+          </div>
+
+          <!-- Side controls -->
+          <div class="side-panel">
+            <div class="sess-ctrl-card">
+              <div class="ctrl-label">Child's name</div>
+              <input class="ctrl-input" id="childNameInput" placeholder="Enter child's name" type="text">
+              <button class="btn-monitor" id="btnMonitor" onclick="toggleMonitoring()">▶ Start monitoring</button>
+              <div class="tips-box">
+                <div class="tips-title">Monitoring tips</div>
+                <div class="tips-list">
+                  <span>• Position camera at eye level</span>
+                  <span>• Ensure good lighting</span>
+                  <span>• Sit 2–3 feet from camera</span>
+                  <span>• Keep face fully visible</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="status-card" id="statusCard">
+              <div class="status-top">
+                <span class="status-icon" id="statusIcon">⏸</span>
+                <span class="status-heading" id="statusHeading">WAITING TO START</span>
+              </div>
+              <div class="status-checks" id="statusChecks">Press start to begin session</div>
+            </div>
+
+            <div class="live-stats-card">
+              <div class="ls-title">LIVE STATS</div>
+              <div class="ls-grid">
+                <div class="ls-item ls-teal"><div class="ls-val" id="lsTime">0:00</div><div class="ls-lbl">Session</div></div>
+                <div class="ls-item ls-red"><div class="ls-val" id="lsAlerts">0</div><div class="ls-lbl">Alerts</div></div>
+                <div class="ls-item ls-amber"><div class="ls-val" id="lsScore">—</div><div class="ls-lbl">Score</div></div>
+              </div>
+            </div>
+
+            <div class="zkp-status-card">
+              <div class="zkp-icon-wrap">🔐</div>
+              <div class="zkp-text-wrap">
+                <div class="zkp-title">Midnight ZKP</div>
+                <div class="zkp-sub" id="zkpSub">Awaiting session data</div>
+              </div>
+              <div class="zkp-chip" id="zkpChip">IDLE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROGRESS ── -->
+      <div id="page-progress" class="page-inner">
+        <div class="page-title-row">
+          <div><h2>Progress tracker</h2><p class="page-sub">Monitor improvement over time</p></div>
+        </div>
+        <div class="filter-row">
+          <select class="filter-select"><option>All children</option><option>Lucas</option><option>Sofía</option></select>
+          <select class="filter-select"><option>Last 7 days</option><option>Last month</option><option>3 months</option></select>
+        </div>
+        <div class="stats-grid-4">
+          <div class="stat-card sc-blue"><div class="sc-val">7</div><div class="sc-lbl">Total sessions</div><div class="sc-icon">📅</div></div>
+          <div class="stat-card sc-green"><div class="sc-val">4h 32m</div><div class="sc-lbl">Total time</div><div class="sc-icon">⏱</div></div>
+          <div class="stat-card sc-purple"><div class="sc-val">74%</div><div class="sc-lbl">Avg compliance</div><div class="sc-icon">🏅</div></div>
+          <div class="stat-card sc-amber"><div class="sc-val" style="color:#1E7A30">+12%</div><div class="sc-lbl">Improvement</div><div class="sc-icon">📈</div></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Compliance over time — last 7 days</div>
+          <svg class="line-chart" viewBox="0 0 600 120">
+            <defs>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4BAE9E" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#4BAE9E" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <polyline points="0,95 85,85 170,72 255,65 340,50 425,42 510,32 600,26" fill="none" stroke="#4BAE9E" stroke-width="2.5" stroke-linejoin="round"/>
+            <polygon points="0,95 85,85 170,72 255,65 340,50 425,42 510,32 600,26 600,115 0,115" fill="url(#chartGrad)"/>
+            <circle cx="600" cy="26" r="5" fill="#4BAE9E"/>
+            <text x="592" y="20" font-size="11" fill="#2D7A70" text-anchor="middle" font-family="DM Sans">86%</text>
+            <text x="0" y="115" font-size="10" fill="#7A8E96" font-family="DM Sans">Mon</text>
+            <text x="85" y="115" font-size="10" fill="#7A8E96" font-family="DM Sans">Tue</text>
+            <text x="170" y="115" font-size="10" fill="#7A8E96" font-family="DM Sans">Wed</text>
+            <text x="255" y="115" font-size="10" fill="#7A8E96" font-family="DM Sans">Thu</text>
+            <text x="340" y="115" font-size="10" fill="#7A8E96" font-family="DM Sans">Fri</text>
+            <text x="425" y="115" font-size="10" fill="#7A8E96" font-family="DM Sans">Sat</text>
+            <text x="510" y="115" font-size="10" fill="#7A8E96" font-family="DM Sans">Sun</text>
+          </svg>
+        </div>
+        <div class="sessions-table-card">
+          <div class="table-title">Recent sessions</div>
+          <table class="sessions-table">
+            <thead><tr><th>Child</th><th>Date</th><th>Duration</th><th>Alerts</th><th>Score</th></tr></thead>
+            <tbody id="sessionsTableBody">
+              <tr><td>Lucas</td><td>Today 9:15</td><td>38m</td><td>3</td><td><span class="score-chip hi">86%</span></td></tr>
+              <tr><td>Sofía</td><td>Yesterday</td><td>52m</td><td>7</td><td><span class="score-chip mid">71%</span></td></tr>
+              <tr><td>Lucas</td><td>Mar 15</td><td>45m</td><td>14</td><td><span class="score-chip lo">54%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── LEARN ── -->
+      <div id="page-learn" class="page-inner">
+        <div class="page-title-row">
+          <div><h2>Learn about oral breathing</h2><p class="page-sub">Based on 24 peer-reviewed scientific references</p></div>
+        </div>
+        <div class="learn-tabs">
+          <button class="learn-tab active" onclick="learnTab('overview',this)">Overview</button>
+          <button class="learn-tab" onclick="learnTab('technique',this)">Technique</button>
+          <button class="learn-tab" onclick="learnTab('references',this)">References</button>
+        </div>
+
+        <div id="lt-overview" class="learn-content active">
+          <div class="why-card">
+            <div class="why-head"><span>⚠️</span> Why this matters</div>
+            <p class="why-sub">Mouth breathing in children leads to serious developmental issues affecting their entire life. Affects an estimated 70% of children in Latin America. <cite>[2,3]</cite></p>
+            <div class="why-grid">
+              <div class="why-box wb-red">
+                <div class="wb-title">Immediate effects</div>
+                <div class="wb-item">• Dry mouth and bad breath</div>
+                <div class="wb-item">• Snoring &amp; sleep disruption <cite>[12,19]</cite></div>
+                <div class="wb-item">• Frequent respiratory infections</div>
+                <div class="wb-item">• Poor concentration at school <cite>[3]</cite></div>
+              </div>
+              <div class="why-box wb-orange">
+                <div class="wb-title">Long-term consequences</div>
+                <div class="wb-item">• Facial growth abnormalities <cite>[1,17]</cite></div>
+                <div class="wb-item">• Dental problems &amp; crowding <cite>[6,15]</cite></div>
+                <div class="wb-item">• Speech development issues</div>
+                <div class="wb-item">• ADHD-like behavior <cite>[3]</cite></div>
+              </div>
+            </div>
+          </div>
+          <div class="impact-cards">
+            <div class="impact-card ic-blue">
+              <div class="ic-emoji">🧠</div>
+              <div class="ic-title">Brain development</div>
+              <p>Nasal breathing optimizes O₂ delivery to the developing brain, improving focus and memory formation. <cite>[3]</cite></p>
+            </div>
+            <div class="impact-card ic-green">
+              <div class="ic-emoji">😊</div>
+              <div class="ic-title">Facial growth</div>
+              <p>Proper tongue posture guides normal jaw and skeletal development during critical growth periods. <cite>[17,20]</cite></p>
+            </div>
+            <div class="impact-card ic-purple">
+              <div class="ic-emoji">😴</div>
+              <div class="ic-title">Sleep quality</div>
+              <p>Mouth breathing is directly linked to SAOS and sleep-disordered breathing in children. <cite>[1,4,19]</cite></p>
+            </div>
+            <div class="impact-card ic-teal">
+              <div class="ic-emoji">🦷</div>
+              <div class="ic-title">Orthodontic risk</div>
+              <p>Pediatricians and orthodontists must coordinate early referral to prevent malocclusion. <cite>[22,23]</cite></p>
+            </div>
+          </div>
+          <div class="adenoid-card">
+            <div class="adenoid-title">Adenoid facies — the vicious cycle <cite>[18]</cite></div>
+            <div class="adenoid-cycle">
+              <div class="cycle-step">Adenoid hypertrophy</div>
+              <div class="cycle-arrow">→</div>
+              <div class="cycle-step">Nasal obstruction</div>
+              <div class="cycle-arrow">→</div>
+              <div class="cycle-step">Mouth breathing</div>
+              <div class="cycle-arrow">→</div>
+              <div class="cycle-step">Dentofacial malformation</div>
+              <div class="cycle-arrow cycle-arrow-back">↩</div>
+            </div>
+            <p class="adenoid-cta">Early monitoring with RinoMONITOR <strong>breaks this cycle.</strong></p>
+          </div>
+          <div class="ent-card">
+            <div class="ent-title">When to consult an ENT / Orthodontist</div>
+            <div class="ent-grid">
+              <div class="ent-box eb-amber">
+                <div class="eb-title">Red flags <cite>[23]</cite></div>
+                <div class="eb-item">• Mouth breathing &gt;2 weeks</div>
+                <div class="eb-item">• Snoring or sleep disturbances</div>
+                <div class="eb-item">• Open mouth at rest</div>
+                <div class="eb-item">• Adenoid / tonsil enlargement</div>
+              </div>
+              <div class="ent-box eb-blue">
+                <div class="eb-title">Treatment options <cite>[10,22]</cite></div>
+                <div class="eb-item">• Adenoid/tonsil evaluation</div>
+                <div class="eb-item">• Allergy testing &amp; treatment</div>
+                <div class="eb-item">• Myofunctional therapy</div>
+                <div class="eb-item">• Orthodontic referral</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="lt-technique" class="learn-content">
+          <div class="tech-card">
+            <div class="tech-title">✅ Proper breathing technique</div>
+            <div class="tech-grid">
+              <div class="tech-box">
+                <div class="tech-sub">Correct posture</div>
+                <div class="tech-item">✓ Mouth closed at all times</div>
+                <div class="tech-item">✓ Tongue resting on roof of mouth</div>
+                <div class="tech-item">✓ Lips gently together</div>
+                <div class="tech-item">✓ Breathe only through nose</div>
+                <div class="tech-item">✓ Shoulders relaxed, head straight</div>
+              </div>
+              <div class="tech-box">
+                <div class="tech-sub">Daily exercises</div>
+                <div class="tech-item">• "Tongue to roof" for 2 minutes</div>
+                <div class="tech-item">• Blow bubbles to strengthen lips</div>
+                <div class="tech-item">• Nasal breathing during activities</div>
+                <div class="tech-item">• Monitor posture every hour</div>
+                <div class="tech-item">• Practice swallowing correctly</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-card ic-card-blue">
+            <div class="info-card-title">Physiological basis <cite>[11,13]</cite></div>
+            <p>Nasal breathing filters, humidifies and warms air, produces nitric oxide (vasodilator), and activates lower lung lobes. Harvold's landmark primate experiments (1972) demonstrated that forced oral breathing produces measurable craniofacial changes.</p>
+          </div>
+          <div class="info-card ic-card-green">
+            <div class="info-card-title">Breastfeeding &amp; prevention <cite>[7,14]</cite></div>
+            <p>Breastfeeding promotes proper nasal breathing patterns and reduces risk of dentofacial anomalies. Studies confirm its protective role in naso-oral function development from infancy.</p>
+          </div>
+          <div class="info-card ic-card-amber">
+            <div class="info-card-title">Oral function reduction <cite>[16]</cite></div>
+            <p>Masutomi et al. (2024) found mouth breathing in adolescents significantly reduces tongue pressure and oral motor function — measurable outcomes RinoMONITOR helps prevent through continuous monitoring.</p>
+          </div>
+        </div>
+
+        <div id="lt-references" class="learn-content">
+          <div class="refs-card">
+            <div class="refs-title">Scientific validation · 24 peer-reviewed references</div>
+            <div class="refs-list" id="refsList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div id="page-settings" class="page-inner">
+        <div class="page-title-row"><div><h2>Settings</h2><p class="page-sub">Configure your monitoring experience</p></div></div>
+
+        <div class="settings-grid">
+          <!-- Profile -->
+          <div class="sett-section">
+            <div class="sett-section-title">Profile</div>
+            <div class="profile-card">
+              <div class="profile-avatar">👨‍👧</div>
+              <div class="profile-info">
+                <div class="profile-name">Familia García</div>
+                <div class="profile-role">Parent account · 2 children</div>
+              </div>
+            </div>
+            <div class="sett-row">
+              <div class="sett-row-left"><div class="sett-lbl">Children profiles</div><div class="sett-sub">Lucas (8 y/o), Sofía (11 y/o)</div></div>
+              <span class="sett-chevron">›</span>
+            </div>
+          </div>
+
+          <!-- AI Provider -->
+          <div class="sett-section ai-section">
+            <div class="sett-section-title">🤖 AI Provider — Facial Recognition</div>
+            <div class="ai-provider-cards">
+              <div class="ai-provider-card" id="provClaude" onclick="selectProvider('claude')">
+                <div class="ap-logo ap-claude">✦</div>
+                <div class="ap-name">Claude</div>
+                <div class="ap-sub">Anthropic · claude-opus-4-6</div>
+                <div class="ap-check hidden" id="checkClaude">✓</div>
+              </div>
+              <div class="ai-provider-card" id="provOpenAI" onclick="selectProvider('openai')">
+                <div class="ap-logo ap-openai">◎</div>
+                <div class="ap-name">OpenAI</div>
+                <div class="ap-sub">GPT-4o Vision</div>
+                <div class="ap-check hidden" id="checkOpenAI">✓</div>
+              </div>
+            </div>
+            <div class="api-key-wrap" id="apiKeyWrap">
+              <label class="api-key-label" id="apiKeyLabel">API Key</label>
+              <div class="api-key-row">
+                <input class="api-key-input" id="apiKeyInput" type="password" placeholder="sk-..." autocomplete="off">
+                <button class="api-key-toggle" onclick="toggleApiKeyVisibility()">👁</button>
+              </div>
+              <div class="api-key-note">🔒 Stored locally in your browser only. Never sent to any server except the selected AI provider.</div>
+              <button class="btn-save-key" onclick="saveApiKey()">Save API key</button>
+            </div>
+            <div class="ai-freq-row">
+              <div class="sett-lbl">Analysis frequency</div>
+              <div class="ai-freq-pills">
+                <div class="freq-pill active" onclick="selectFreq(this,'3')">Every 3s</div>
+                <div class="freq-pill" onclick="selectFreq(this,'5')">Every 5s</div>
+                <div class="freq-pill" onclick="selectFreq(this,'10')">Every 10s</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detection -->
+          <div class="sett-section">
+            <div class="sett-section-title">Detection</div>
+            <div class="sett-row">
+              <div class="sett-row-left"><div class="sett-lbl">Mouth breathing detection</div><div class="sett-sub">Alert when mouth area opens</div></div>
+              <div class="toggle on" onclick="togToggle(this)"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="sett-row">
+              <div class="sett-row-left"><div class="sett-lbl">Posture zone detection</div><div class="sett-sub">Alert on head position deviation</div></div>
+              <div class="toggle on" onclick="togToggle(this)"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="sett-row">
+              <div class="sett-row-left">
+                <div class="sett-lbl">Sensitivity level — <span id="sensValueLabel">50%</span></div>
+                <input type="range" min="0" max="100" value="50" class="sett-range" oninput="document.getElementById('sensValueLabel').textContent=this.value+'%'">
+              </div>
+            </div>
+          </div>
+
+          <!-- Alerts -->
+          <div class="sett-section">
+            <div class="sett-section-title">Alerts &amp; Notifications</div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl">Vibration on detection</div></div><div class="toggle on" onclick="togToggle(this)"><div class="toggle-knob"></div></div></div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl">Sound alerts</div></div><div class="toggle off" onclick="togToggle(this)"><div class="toggle-knob"></div></div></div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl">Daily reminders</div><div class="sett-sub">Reminder to run monitoring session</div></div><div class="toggle on" onclick="togToggle(this)"><div class="toggle-knob"></div></div></div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl">Weekly progress report</div><div class="sett-sub">Summary sent to parent email</div></div><div class="toggle on" onclick="togToggle(this)"><div class="toggle-knob"></div></div></div>
+          </div>
+
+          <!-- Blockchain -->
+          <div class="sett-section blockchain-section">
+            <div class="sett-section-title">⬡ Blockchain &amp; Privacy</div>
+            <div class="zkp-info-row">
+              <div class="zkp-info-icon">🔐</div>
+              <div class="zkp-info-text">Midnight ZKP · your raw data never leaves this device</div>
+              <div class="zkp-info-chip">ACTIVE</div>
+            </div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl">Anchor sessions on Cardano</div><div class="sett-sub">Immutable hash per valid session</div></div><div class="toggle on" onclick="togToggle(this)"><div class="toggle-knob"></div></div></div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl">Receive ADA rewards</div><div class="sett-sub">Micropayment per anchored ZKP</div></div><div class="toggle on" onclick="togToggle(this)"><div class="toggle-knob"></div></div></div>
+            <div class="sett-row">
+              <div class="sett-row-left"><div class="sett-lbl">Active network</div></div>
+              <div class="net-pills">
+                <div class="net-pill active" onclick="selectNet(this,'Testnet')">Testnet</div>
+                <div class="net-pill" onclick="selectNet(this,'Mainnet')">Mainnet</div>
+              </div>
+            </div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl">Doctor DGA access</div><div class="sett-sub">Dr. Rangel · Alergología · authorized</div></div><span class="chip-green">✓ Active</span></div>
+          </div>
+
+          <!-- Data -->
+          <div class="sett-section">
+            <div class="sett-section-title">Data &amp; Export</div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl">Export session report (PDF)</div><div class="sett-sub">Share with ENT or orthodontist</div></div><span class="sett-chevron">›</span></div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl">Auto-save sessions</div></div><div class="toggle on" onclick="togToggle(this)"><div class="toggle-knob"></div></div></div>
+          </div>
+
+          <!-- Danger -->
+          <div class="sett-section sett-danger">
+            <div class="sett-section-title">Account</div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl danger-lbl">Delete all session data</div></div><span class="sett-chevron danger-lbl">›</span></div>
+            <div class="sett-row"><div class="sett-row-left"><div class="sett-lbl danger-lbl">Sign out</div></div><span class="sett-chevron danger-lbl">›</span></div>
+          </div>
+        </div>
+        <p class="settings-footer">RinoMONITOR v1.0 · Cardano Catalyst F15<br>Dr. J. Rangel · Ing. A. Chermaz · Dr. C. Hermida · F. Couto</p>
+      </div>
+
+    </main>
+
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+      <div class="nav-item active" id="nav-monitor" onclick="showPage('monitor')">
+        <div class="nav-icon">📷</div>
+        <div class="nav-label">Monitor</div>
+      </div>
+      <div class="nav-item" id="nav-progress" onclick="showPage('progress')">
+        <div class="nav-icon">📊</div>
+        <div class="nav-label">Progress</div>
+      </div>
+      <div class="nav-item" id="nav-learn" onclick="showPage('learn')">
+        <div class="nav-icon">📖</div>
+        <div class="nav-label">Learn</div>
+      </div>
+      <div class="nav-item" id="nav-settings" onclick="showPage('settings')">
+        <div class="nav-icon">⚙️</div>
+        <div class="nav-label">Settings</div>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/refs.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/monitor.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
